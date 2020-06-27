@@ -3,13 +3,15 @@ import datetime
 import json
 from scheduler import book_timeslot
 import re 
+from datetime import datetime
+
+import telegramcalendar
 
 api_key='1270053277:AAHiiVa2cngyR8tCSsC5ovI4cWdowRWJ3GU'
 venues = ['Room 1', 'Room 2', 'Room 3', 'Room 4']
 v_lst = []
 for i in range(len(venues)):
     v_lst.append([{'text' : venues[i]}])
-print(v_lst)    
 
 
 def check_email(email):
@@ -56,42 +58,50 @@ def sendInlineMessageForService(chat_id):
     return response
 
 def sendInlineMessageForBookingTime(chat_id):
-    text_message='Please choose a time slot...'
+    text_message='Please choose a time.'
     current_time=datetime.datetime.now()
     current_hour=str(current_time)[11:13]
+    current_date = datetime.date()
     # ----------- Chunk of if statement to determine which inline keyboard to reply user ----------------
-    if int(current_hour) < 8:
-        keyboard={'keyboard':[
+    if (picked_date == current_date):
+        if int(current_hour) < 8:
+            keyboard={'keyboard':[
+                                [{'text':'08:00'}],[{'text':'10:00'}],
+                                [{'text':'12:00'}],[{'text':'14:00'}],
+                                [{'text':'16:00'}],[{'text':'18:00'}],
+                                ]}
+        elif 8 <= int(current_hour) < 10:
+            keyboard={'keyboard':[
+                                [{'text':'10:00'}],
+                                [{'text':'12:00'}],[{'text':'14:00'}],
+                                [{'text':'16:00'}],[{'text':'18:00'}],
+                                ]}
+        elif 10 <= int(current_hour) < 12:
+            keyboard={'keyboard':[
+                                [{'text':'12:00'}],[{'text':'14:00'}],
+                                [{'text':'16:00'}],[{'text':'18:00'}],
+                                ]}
+        elif 12<=int(current_hour)<14:
+            keyboard={'keyboard':[
+                                [{'text':'14:00'}],
+                                [{'text':'16:00'}],[{'text':'18:00'}],
+                                ]}
+        elif 14<=int(current_hour)<16:
+            keyboard={'keyboard':[
+                                [{'text':'16:00'}],[{'text':'18:00'}],
+                                ]}
+        elif 16<=int(current_hour)<18:
+            keyboard={'keyboard':[
+                                [{'text':'18:00'}],
+                                ]}
+        else:
+            return sendMessage(chat_id,'Please pick another date')
+    else:
+       keyboard={'keyboard':[
                             [{'text':'08:00'}],[{'text':'10:00'}],
                             [{'text':'12:00'}],[{'text':'14:00'}],
                             [{'text':'16:00'}],[{'text':'18:00'}],
-                            ]}
-    elif 8 <= int(current_hour) < 10:
-        keyboard={'keyboard':[
-                            [{'text':'10:00'}],
-                            [{'text':'12:00'}],[{'text':'14:00'}],
-                            [{'text':'16:00'}],[{'text':'18:00'}],
-                            ]}
-    elif 10 <= int(current_hour) < 12:
-        keyboard={'keyboard':[
-                            [{'text':'12:00'}],[{'text':'14:00'}],
-                            [{'text':'16:00'}],[{'text':'18:00'}],
-                            ]}
-    elif 12<=int(current_hour)<14:
-        keyboard={'keyboard':[
-                            [{'text':'14:00'}],
-                            [{'text':'16:00'}],[{'text':'18:00'}],
-                            ]}
-    elif 14<=int(current_hour)<16:
-        keyboard={'keyboard':[
-                            [{'text':'16:00'}],[{'text':'18:00'}],
-                            ]}
-    elif 16<=int(current_hour)<18:
-        keyboard={'keyboard':[
-                            [{'text':'18:00'}],
-                            ]}
-    else:
-        return sendMessage(chat_id,'Please try again tmr')
+                            ]}         
     #----------------------------------------------------------------------------------------------------
     key=json.JSONEncoder().encode(keyboard)
     url='https://api.telegram.org/bot'+str(api_key)+'/sendmessage?chat_id='+str(chat_id)+'&text='+str(text_message)+'&reply_markup='+key
