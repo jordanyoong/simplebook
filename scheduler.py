@@ -10,11 +10,10 @@ from google.auth.transport.requests import Request
 # SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
-def book_timeslot(event_description,booking_date,booking_time,input_email):
+def book_timeslot(requester, event_description, booking_date, booking_time, input_email):
     """Shows basic usage of the Google Calendar API.
     Prints the start and name of the next 10 events on the user's calendar.
     """
-    print(event_description)
     creds = None
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -50,7 +49,7 @@ def book_timeslot(event_description,booking_date,booking_time,input_email):
     events = events_result.get('items', [])
     if not events:
         event = {
-        'summary': 'Venue Booking',
+        'summary': '[' + event_description + '] ' + requester,
         'location': 'Singapore',
         'description': str(event_description),
         'start': {
@@ -88,7 +87,7 @@ def book_timeslot(event_description,booking_date,booking_time,input_email):
                 return False
         # -------------------- Break out of for loop if there are no apppointment that has the same time ----------
         event = {
-        'summary': 'Venue Booking',
+        'summary': '[' + event_description + '] ' + requester,
         'location': 'Singapore',
         'description': str(event_description),
         'start': {
