@@ -10,10 +10,11 @@ from google.auth.transport.requests import Request
 # SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
-def book_timeslot(event_description,booking_time,input_email):
+def book_timeslot(event_description,booking_date,booking_time,input_email):
     """Shows basic usage of the Google Calendar API.
     Prints the start and name of the next 10 events on the user's calendar.
     """
+    print(event_description)
     creds = None
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -36,8 +37,8 @@ def book_timeslot(event_description,booking_time,input_email):
     service = build('calendar', 'v3', credentials=creds)
     
     #--------------------- Manipulating Booking Time ----------------------------
-    start_time=str(datetime.datetime.now())[:10]+'T'+booking_time+':00+08:00'
-    end_time=str(datetime.datetime.now())[:10]+'T'+str(int(booking_time[:2])+1)+':00:00+08:00'
+    start_time=booking_date[:10]+'T'+booking_time+':00+08:00'
+    end_time=booking_date[:10]+'T'+str(int(booking_time[:2])+1)+':00:00+08:00'
     #----------------------------------------------------------------------------
 
     # Call the Calendar API
@@ -121,4 +122,5 @@ def book_timeslot(event_description,booking_time,input_email):
 if __name__ == '__main__': 
     input_email='test@gmail.com'
     booking_time='14:00' 
-    result=book_timeslot('Dye',booking_time,input_email)
+    booking_date = '2020-01-01'
+    result=book_timeslot('Room 1',booking_date,booking_time,input_email)

@@ -3,16 +3,25 @@ import datetime
 import json
 from scheduler import book_timeslot
 import re 
-from datetime import datetime
 
 import telegramcalendar
 
+
 api_key='1270053277:AAHiiVa2cngyR8tCSsC5ovI4cWdowRWJ3GU'
+
+# Initialize Venues
 venues = ['Room 1', 'Room 2', 'Room 3', 'Room 4']
 v_lst = []
 for i in range(len(venues)):
-    v_lst.append([{'text' : venues[i]}])
+    v_lst.append([{'text' : venues[i]}])  
 
+# Initialize dates
+current_date = datetime.date.today()
+week = []
+dates = []
+for i in range(7):
+    dates.append([{'text' : str(current_date + datetime.timedelta(days=i))}])
+    week.append(str(current_date + datetime.timedelta(days=i)))
 
 def check_email(email):
     regex = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
@@ -50,18 +59,33 @@ def sendMessage(chat_id,text_message):
 
 def sendInlineMessageForService(chat_id):
     text_message='Hi! Welcome to SimpleBook_Bot!\nI can help you book an venue.\n\nYou can control me using these commands\n\n/start-to start chatting with the bot\n/cancel-to stop chatting with the bot.\n\nFor more information please contact simplebook@gmail.com'
-
     keyboard = {'keyboard': v_lst}
     key = json.JSONEncoder().encode(keyboard)
     url = 'https://api.telegram.org/bot'+str(api_key)+'/sendmessage?chat_id='+str(chat_id)+'&text='+str(text_message)+'&reply_markup='+key
     response = requests.get(url)
     return response
 
+def sendInlineMessageForBookingDate(chat_id):
+    text_message='Please choose a date'
+    current_time=datetime.datetime.now()
+    current_hour=str(current_time)[11:13]
+    
+    # ----------- Chunk of if statement to determine which inline keyboard to reply user ----------------
+    # r_mark = telegramcalendar.create_calendar()
+    print(dates)
+    keyboard = {'keyboard': dates}
+    #----------------------------------------------------------------------------------------------------
+    key=json.JSONEncoder().encode(keyboard)
+    url='https://api.telegram.org/bot'+str(api_key)+'/sendmessage?chat_id='+str(chat_id)+'&text='+str(text_message)+'&reply_markup='+key
+    response = requests.get(url)
+    return response 
+
 def sendInlineMessageForBookingTime(chat_id):
     text_message='Please choose a time.'
     current_time=datetime.datetime.now()
     current_hour=str(current_time)[11:13]
-    current_date = datetime.date()
+    picked_date = datetime.date.today() #placeholder for pick date function
+    current_date = datetime.date.today() 
     # ----------- Chunk of if statement to determine which inline keyboard to reply user ----------------
     if (picked_date == current_date):
         if int(current_hour) < 8:
@@ -122,6 +146,9 @@ def run():
                 sendInlineMessageForService(chat_id)   
             if current_last_msg in venues:
                 event_description=current_last_msg
+                sendInlineMessageForBookingDate(chat_id)
+            if current_last_msg in week:
+                booking_date = current_last_msg    
                 sendInlineMessageForBookingTime(chat_id)
             if current_last_msg in ['08:00','10:00','12:00','14:00','16:00','18:00']:
                 booking_time=current_last_msg
@@ -136,7 +163,7 @@ def run():
                     update_id_for_booking_of_time_slot=''
                     sendMessage(chat_id,"Booking please wait.....")
                     input_email=current_last_msg
-                    response=book_timeslot(event_description,booking_time,input_email)
+                    response=book_timeslot(event_description,booking_date,booking_time,input_email)
                     if response == True:
                         sendMessage(chat_id,f"Venue is booked for {booking_time}")
                         continue
