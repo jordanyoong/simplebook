@@ -10,7 +10,7 @@ from google.auth.transport.requests import Request
 # SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
-def book_timeslot(requester, event_description, booking_date, booking_time, input_email):
+def book_timeslot(requester, event_description, booking_date, booking_time, event_duration, input_email):
     """Shows basic usage of the Google Calendar API.
     Prints the start and name of the next 10 events on the user's calendar.
     """
@@ -36,8 +36,8 @@ def book_timeslot(requester, event_description, booking_date, booking_time, inpu
     service = build('calendar', 'v3', credentials=creds)
     
     #--------------------- Manipulating Booking Time ----------------------------
-    start_time=booking_date[:10]+'T'+booking_time+':00+08:00'
-    end_time=booking_date[:10]+'T'+str(int(booking_time[:2])+1)+':00:00+08:00'
+    start_time = booking_date[:10] + 'T' + booking_time + ':00+08:00'
+    end_time = booking_date[:10] +'T' + str(int(booking_time[:2]) + int(event_duration)) + ':00:00+08:00'
     #----------------------------------------------------------------------------
 
     # Call the Calendar API
@@ -80,9 +80,10 @@ def book_timeslot(requester, event_description, booking_date, booking_time, inpu
 
     else:
         # --------------------- Check if there are any similar start time --------------------- 
+    
         for event in events:
             start = event['start'].get('dateTime', event['start'].get('date'))
-            if start==start_time:
+            if start == start_time and str(event_description) == event['description']:
                 print('Already book....')
                 return False
         # -------------------- Break out of for loop if there are no apppointment that has the same time ----------

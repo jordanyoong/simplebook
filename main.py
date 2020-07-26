@@ -9,7 +9,7 @@ import telegramcalendar
 api_key='1270053277:AAHiiVa2cngyR8tCSsC5ovI4cWdowRWJ3GU'
 
 # Initialize Venues
-venues = ['Room 1', 'Room 2', 'Room 3', 'Room 4']
+venues = ['Function Room 1', 'Function Room 2', 'BBQ Pit 1', 'BBQ Pit 2', 'BBQ Pit 3', 'BBQ Pit 4']
 v_lst = []
 for i in range(len(venues)):
     v_lst.append([{'text' : venues[i]}])  
@@ -89,7 +89,7 @@ def sendInlineMessageForBookingDate(chat_id):
     return response 
 
 def sendInlineMessageForBookingTime(chat_id):
-    text_message='Please choose a time.'
+    text_message='Please choose a start time.'
     current_time=datetime.datetime.now()
     current_hour=str(current_time)[11:13]
     picked_date = '2018-02-12' #placeholder for pick date function
@@ -139,6 +139,17 @@ def sendInlineMessageForBookingTime(chat_id):
     response = requests.get(url)
     return response
 
+def sendInlineMessageForDuration(chat_id):
+    text_message='Please enter the duration of your booking (hours):'
+    keyboard={'keyboard':[
+                                [{'text': 0.5}],[{'text': 1}],
+                                [{'text': 1.5}],[{'text': 2}],
+                                [{'text': 2.5}],[{'text': 3}],
+                                ]}
+    key = json.JSONEncoder().encode(keyboard)
+    url = 'https://api.telegram.org/bot'+str(api_key)+'/sendmessage?chat_id='+str(chat_id)+'&text='+str(text_message)+'&reply_markup='+key
+    response = requests.get(url)
+    return response    
 
 def run():
     update_id_for_booking_of_time_slot = ''
@@ -160,13 +171,17 @@ def run():
                 sendInlineMessageForBookingTime(chat_id)
             if current_last_msg in ['08:00', '09:00', '10:00', '11:00','12:00', '13:00', '14:00', '15:00', '16:00', '18:00', '19:00',]:
                 booking_time = current_last_msg
+                sendInlineMessageForDuration(chat_id)
+            if current_last_msg in ['1', '2', '3']:
+                print(current_last_msg)
+                event_duration = float(current_last_msg)
                 update_id_for_booking_of_time_slot = current_update_id
                 sendMessage(chat_id,"Please enter email address:")
             if current_last_msg=='/cancel':
                 update_id_for_booking_of_time_slot=''
                 # return
                 continue
-            if update_id_for_booking_of_time_slot!=current_update_id and update_id_for_booking_of_time_slot!= '':
+            if update_id_for_booking_of_time_slot != current_update_id and update_id_for_booking_of_time_slot!= '':
                 if check_email(current_last_msg) == True:
                     update_id_for_booking_of_time_slot=''
                     sendMessage(chat_id, "Booking please wait.....")
@@ -180,7 +195,7 @@ def run():
                     else:
                         requester = data['result'][len(data['result'])-1]['message']['from']['first_name']   
                     print(requester)                                       
-                    response = book_timeslot(requester, event_description, booking_date, booking_time, input_email)
+                    response = book_timeslot(requester, event_description, booking_date, booking_time, event_duration, input_email)
                     if response == True:
                         sendMessage(chat_id, f"Venue is booked for {booking_time}")
                         continue
