@@ -4,7 +4,6 @@ import json
 from scheduler import book_timeslot
 import re 
 
-import telegramcalendar
 
 api_key='1270053277:AAHiiVa2cngyR8tCSsC5ovI4cWdowRWJ3GU'
 
@@ -59,7 +58,7 @@ def sendMessage(chat_id,text_message):
     return response
 
 def sendInlineMessageForStart(chat_id):
-    text_message='Hi! Welcome to SimpleBook_Bot!\nI can help you book an venue.\n\nYou can control me using these commands\n\n/start-to start chatting with the bot\n/cancel-to stop chatting with the bot.\n\nFor more information please contact simplebookbot@gmail.com'
+    text_message='Hi! Welcome to SimpleBook_Bot for ___ Condominium!\nI can help you book an venue.\n\nYou can control me using these commands\n\n/start-to start chatting with the bot\n/cancel-to stop chatting with the bot.\n\nFor more information please contact simplebookbot@gmail.com'
     keyboard = {'keyboard': [[{'text':'Start Booking'}]]}
     key = json.JSONEncoder().encode(keyboard)
     url = 'https://api.telegram.org/bot'+str(api_key)+'/sendmessage?chat_id='+str(chat_id)+'&text='+str(text_message)+'&reply_markup='+key
@@ -142,9 +141,8 @@ def sendInlineMessageForBookingTime(chat_id):
 def sendInlineMessageForDuration(chat_id):
     text_message='Please enter the duration of your booking (hours):'
     keyboard={'keyboard':[
-                                [{'text': 0.5}],[{'text': 1}],
-                                [{'text': 1.5}],[{'text': 2}],
-                                [{'text': 2.5}],[{'text': 3}],
+                                [{'text': 1}],[{'text': 2}],
+                                [{'text': 3}]
                                 ]}
     key = json.JSONEncoder().encode(keyboard)
     url = 'https://api.telegram.org/bot'+str(api_key)+'/sendmessage?chat_id='+str(chat_id)+'&text='+str(text_message)+'&reply_markup='+key
