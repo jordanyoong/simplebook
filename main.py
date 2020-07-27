@@ -153,56 +153,59 @@ def run():
     update_id_for_booking_of_time_slot = ''
     prev_last_msg, chat_id, prev_update_id = getLastMessage()
     while True:
-        current_last_msg, chat_id, current_update_id = getLastMessage()
-        if prev_last_msg == current_last_msg and current_update_id == prev_update_id:
-            continue
-        else:
-            if current_last_msg == '/start':
-                sendInlineMessageForStart(chat_id) 
-            if current_last_msg == 'Start Booking':
-                sendInlineMessageForService(chat_id)   
-            if current_last_msg in venues:
-                event_description=current_last_msg
-                sendInlineMessageForBookingDate(chat_id)
-            if current_last_msg in week:
-                booking_date = current_last_msg    
-                sendInlineMessageForBookingTime(chat_id)
-            if current_last_msg in ['08:00', '09:00', '10:00', '11:00','12:00', '13:00', '14:00', '15:00', '16:00', '18:00', '19:00',]:
-                booking_time = current_last_msg
-                sendInlineMessageForDuration(chat_id)
-            if current_last_msg in ['1', '2', '3']:
-                print(current_last_msg)
-                event_duration = float(current_last_msg)
-                update_id_for_booking_of_time_slot = current_update_id
-                sendMessage(chat_id,"Please enter email address:")
-            if current_last_msg=='/cancel':
-                update_id_for_booking_of_time_slot=''
-                # return
+        try:
+            current_last_msg, chat_id, current_update_id = getLastMessage()
+            if prev_last_msg == current_last_msg and current_update_id == prev_update_id:
                 continue
-            if update_id_for_booking_of_time_slot != current_update_id and update_id_for_booking_of_time_slot!= '':
-                if check_email(current_last_msg) == True:
+            else:
+                if current_last_msg == '/start':
+                    sendInlineMessageForStart(chat_id) 
+                if current_last_msg == 'Start Booking':
+                    sendInlineMessageForService(chat_id)   
+                if current_last_msg in venues:
+                    event_description=current_last_msg
+                    sendInlineMessageForBookingDate(chat_id)
+                if current_last_msg in week:
+                    booking_date = current_last_msg    
+                    sendInlineMessageForBookingTime(chat_id)
+                if current_last_msg in ['08:00', '09:00', '10:00', '11:00','12:00', '13:00', '14:00', '15:00', '16:00', '18:00', '19:00',]:
+                    booking_time = current_last_msg
+                    sendInlineMessageForDuration(chat_id)
+                if current_last_msg in ['1', '2', '3']:
+                    print(current_last_msg)
+                    event_duration = float(current_last_msg)
+                    update_id_for_booking_of_time_slot = current_update_id
+                    sendMessage(chat_id,"Please enter email address:")
+                if current_last_msg=='/cancel':
                     update_id_for_booking_of_time_slot=''
-                    sendMessage(chat_id, "Booking please wait.....")
-                    input_email = current_last_msg
-
-                    url = "https://api.telegram.org/bot{}/getUpdates".format(api_key)
-                    response = requests.get(url)
-                    data=response.json()
-                    if 'last_name' in data['result'][len(data['result'])-1]['message']['from']:
-                        requester = data['result'][len(data['result'])-1]['message']['from']['first_name'] + ' ' + data['result'][len(data['result'])-1]['message']['from']['last_name']
-                    else:
-                        requester = data['result'][len(data['result'])-1]['message']['from']['first_name']   
-                    print(requester)                                       
-                    response = book_timeslot(requester, event_description, booking_date, booking_time, event_duration, input_email)
-                    if response == True:
-                        sendMessage(chat_id, f"Venue is booked for {booking_time}")
-                        continue
-                    else:
+                    # return
+                    continue
+                if update_id_for_booking_of_time_slot != current_update_id and update_id_for_booking_of_time_slot!= '':
+                    if check_email(current_last_msg) == True:
                         update_id_for_booking_of_time_slot=''
-                        sendMessage(chat_id,"Please try another timeslot and try again tomorrow")
-                        continue
-                else:
-                    sendMessage(chat_id,"Please enter a valid email.\nEnter /cancel to quit chatting with the bot\nThanks!")
+                        sendMessage(chat_id, "Booking please wait.....")
+                        input_email = current_last_msg
+
+                        url = "https://api.telegram.org/bot{}/getUpdates".format(api_key)
+                        response = requests.get(url)
+                        data=response.json()
+                        if 'last_name' in data['result'][len(data['result'])-1]['message']['from']:
+                            requester = data['result'][len(data['result'])-1]['message']['from']['first_name'] + ' ' + data['result'][len(data['result'])-1]['message']['from']['last_name']
+                        else:
+                            requester = data['result'][len(data['result'])-1]['message']['from']['first_name']   
+                        print(requester)                                       
+                        response = book_timeslot(requester, event_description, booking_date, booking_time, event_duration, input_email)
+                        if response == True:
+                            sendMessage(chat_id, f"Venue is booked for {booking_time}")
+                            continue
+                        else:
+                            update_id_for_booking_of_time_slot=''
+                            sendMessage(chat_id,"Please try another timeslot and try again tomorrow")
+                            continue
+                    else:
+                        sendMessage(chat_id,"Please enter a valid email.\nEnter /cancel to quit chatting with the bot\nThanks!")
+        except:
+            continue
           
         prev_last_msg=current_last_msg
         prev_update_id=current_update_id
